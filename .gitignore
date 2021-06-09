@@ -1,0 +1,10 @@
+.git 
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Node Modules###
+/node_modules/
+

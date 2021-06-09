@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="54" name="SOFTINSURANCE-REST-API-PROXY">
+    <Basepaths>/softinsurance-rest-api-proxy</Basepaths>
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <CreatedAt>1621232005373</CreatedAt>
+    <CreatedBy>oksana.veretina222@gmail.com</CreatedBy>
+    <Description>commit from a local branch. Deployed by оксана</Description>
+    <DisplayName>SOFTINSURANCE-REST-API-PROXY</DisplayName>
+    <LastModifiedAt>1622806800750</LastModifiedAt>
+    <LastModifiedBy>oksana.veretina222@gmail.com</LastModifiedBy>
+    <ManifestVersion>SHA-512:1afd9febfb2f945d9d6a525eb0e5b1619331c146fc5022288673b42b870ff16d8e385a0d7962ba2c69fd7feabb01333337c5ed242b5563fd6f5dd6752dae54a1:eu-west-1</ManifestVersion>
+    <Policies>
+        <Policy>AM-AddCORS</Policy>
+        <Policy>EV-GetUrlId</Policy>
+        <Policy>FC-GenerateJWT</Policy>
+        <Policy>JS-JsonFormater</Policy>
+        <Policy>JS-variables</Policy>
+        <Policy>JTP-CatalogProtection</Policy>
+        <Policy>JTP-ClientsProtection</Policy>
+        <Policy>O2-VerifyToken</Policy>
+        <Policy>Q-EnforceQuota</Policy>
+        <Policy>RF-400JTPResponse</Policy>
+        <Policy>RF-401ExpiredAccessToken</Policy>
+        <Policy>RF-401InvalidAccessToken</Policy>
+        <Policy>RF-401InvalidApiKey</Policy>
+        <Policy>RF-403NoPremission</Policy>
+        <Policy>RF-404MethodNotFoundForURL</Policy>
+        <Policy>RF-429TooManyRequests</Policy>
+        <Policy>RP-RegexProtection</Policy>
+        <Policy>SA-SpikeArrest</Policy>
+        <Policy>VAK-VerifyAPIKey</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources>
+        <Resource>test://transformation-test.js</Resource>
+        <Resource>jsc://JS-variables.js</Resource>
+        <Resource>jsc://transformation.js</Resource>
+        <Resource>jsc://utils.js</Resource>
+    </Resources>
+    <Spec></Spec>
+    <TargetServers/>
+    <TargetEndpoints>
+        <TargetEndpoint>Catalog</TargetEndpoint>
+        <TargetEndpoint>Client</TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

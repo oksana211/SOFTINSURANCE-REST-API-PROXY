@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxyEndpoint name="default">
+    <FaultRules>
+        <FaultRule name="method_not_found">
+            <Condition>(response.status.code == 404) or (fault.name = "RouteFailed")</Condition>
+            <Step>
+                <Name>RF-404MethodNotFoundForURL</Name>
+            </Step>
+        </FaultRule>
+        <FaultRule name="too_many_requests">
+            <Condition>(fault.name = "QuotaViolation") or (fault.name = "SpikeArrestViolation") </Condition>
+            <Step>
+                <Name>RF-429TooManyRequests</Name>
+            </Step>
+        </FaultRule>
+        <FaultRule name="invalid_apikey">
+            <Condition>(fault.name = "FailedToResolveAPIKey") or (fault.name = "InvalidApiKey")</Condition>
+            <Step>
+                <Name>RF-401InvalidApiKey</Name>
+            </Step>
+        </FaultRule>
+    </FaultRules>
+    <PreFlow name="PreFlow">
+        <Request>
+            <Step>
+                <Name>SA-SpikeArrest</Name>
+            </Step>
+            <Step>
+                <Name>VAK-VerifyAPIKey</Name>
+                <Condition>request.verb != "OPTIONS"</Condition>
+            </Step>
+            <Step>
+                <Name>Q-EnforceQuota</Name>
+            </Step>
+            <Step>
+                <Name>JS-variables</Name>
+            </Step>
+        </Request>
+        <Response/>
+    </PreFlow>
+    <Flows>
+        <Flow name="OptionsPreFlight">
+            <Request/>
+            <Response>
+                <Step>
+                    <Name>AM-AddCORS</Name>
+                </Step>
+            </Response>
+            <Condition>request.verb == "OPTIONS" AND request.header.origin != null AND request.header.Access-Control-Request-Method != null</Condition>
+        </Flow>
+    </Flows>
+    <PostFlow name="PostFlow">
+        <Request/>
+        <Response>
+            <Step>
+                <Condition>(req_verb != "OPTIONS") and (req_verb != "DELETE")</Condition>
+                <Name>JS-JsonFormater</Name>
+            </Step>
+        </Response>
+    </PostFlow>
+    <HTTPProxyConnection>
+        <BasePath>/softinsurance-rest-api-proxy</BasePath>
+        <VirtualHost>secure</VirtualHost>
+    </HTTPProxyConnection>
+    <RouteRule name="NoRoute">
+        <Condition>request.verb == "OPTIONS" AND request.header.origin != null AND request.header.Access-Control-Request-Method != null</Condition>
+    </RouteRule>
+    <RouteRule name="client">
+        <Condition>(proxy.pathsuffix MatchesPath "/clients/**") OR (proxy.pathsuffix MatchesPath "/clients")</Condition>
+        <TargetEndpoint>Client</TargetEndpoint>
+    </RouteRule>
+    <RouteRule name="catalog">
+        <Condition>(proxy.pathsuffix MatchesPath "/catalog/**")</Condition>
+        <TargetEndpoint>Catalog</TargetEndpoint>
+    </RouteRule>
+</ProxyEndpoint>

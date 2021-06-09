@@ -1,0 +1,876 @@
+openapi: "3.0.2"
+info:
+  title: "SoftInsurance Proxy API"
+  version: "2.0"
+servers:
+  - url: https://oksanaveretina222-eval-test.apigee.net/softinsurance-rest-api-proxy
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        balance:
+          type: number
+          format: double
+        package:
+          type: string
+          format: uuid
+    Package:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        createdTime:
+          type: string
+        productIds:
+          nullable: true
+          type: array
+          items:
+            type: string
+            format: uuid
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+    PackageCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        products:
+          type: array
+          items:
+            type: string
+    ProductCreate:
+      required:
+        - description
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+
+  responses:
+    401UnauthorizedError:
+      description: Token is missing or invalid, or the user does not have access to perform the action
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Unauthorized"
+    403ForbiddenError:
+      description: User does not have access to perform the action
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Access denided"
+    404NotFoundError:
+      description: Client not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Client not found"
+    409AlreadyExists:
+      description: Client already exists
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Client already exists"
+    400BadRequest:
+      description: Missing body params
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Parameter missing"
+    500InternalError:
+      description: Internal error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Internal error
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: apikey
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+
+paths:
+  /catalog/packages:
+    get:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: []
+        - bearerAuth: []
+      summary: List of Packages
+      operationId: getPackagesList
+      description: Get List of Packages
+      parameters:
+        - in: query
+          name: filter
+          description: Filter by name
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of Packages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/packages"
+                  total:
+                    type: number
+                    format: int32
+                    example: 2
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Package"
+    post:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: []
+        - bearerAuth: []
+      summary: Creates a new custom package.
+      description: Creates a new custom package in the catalog.
+      operationId: createNewPackageCustom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageCreate'
+        required: true
+      responses:
+        "201":
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/packages"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: '#/components/schemas/Package'
+
+  /catalog/packages/base:
+    get:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: []
+      summary: List of base Packages
+      operationId: getBasePackagesList
+      description: Get list of base Packages
+      responses:
+        "200":
+          description: List of base Packages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/packages/base"
+                  total:
+                    type: number
+                    format: int32
+                    example: 2
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Package"
+
+    post:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Creates a new base package.
+      description: Creates a new base package in the catalog.
+      operationId: createNewPackageBase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageCreate'
+        required: true
+      responses:
+        "201":
+          description: List of base Packages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/packages/base"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: "#/components/schemas/Package"
+
+
+  /catalog/products:
+    get:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+      summary: List of Products
+      operationId: getProductsList
+      description: Get list of Products
+      responses:
+        "200":
+          description: List of Products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/products"
+                  total:
+                    type: number
+                    format: int32
+                    example: 2
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+
+    post:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Creates a new product.
+      description: Creates a new product in the catalog.
+      operationId: createNewProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+        required: true
+      responses:
+        "201":
+          description: List of Products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/products"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: "#/components/schemas/Product"
+
+  /catalog/products/{id}:
+    get:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Get a product by id.
+      description: Provides an id to look specific product from the catalog.
+      operationId: findProductById
+      responses:
+        "200":
+          description: Get Product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/products/{id}"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: "#/components/schemas/Product"
+    put:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Updates a product.
+      description: Fully updates an existing product in the catalog.
+      operationId: replaceProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        "200":
+          description: Get Product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/products/{id}"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: "#/components/schemas/Product"
+    patch:
+      tags:
+        - catalog
+      summary: Updates a product.
+      description: Partially updates an existing product in the catalog.
+      operationId: partialUpdateProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        "200":
+          description: Get Product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      collection:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api-server/catalog/products/{id}"
+                  total:
+                    type: number
+                    format: int32
+                    example: 1
+                  data:
+                    $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - catalog
+      security:
+        - ApiKeyAuth: [ ]
+        - bearerAuth: [ ]
+      summary: Delete a product.
+      description: Delete an existing product in the catalog.
+      operationId: deleteProductById
+      responses:
+        "200":
+          description: OK
+
+
+
+
+
+
+#
+#
+#  /clients/{id}/balance:
+#    patch:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - oAuth2ClientCredentials: []
+#      summary: Client balance topup
+#      operationId: balanceTopUp
+#      description: Top up balance for a client specified with "id"
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                amount:
+#                  type: number
+#                  format: double
+#                  example: 2000.9999
+#      responses:
+#        "200":
+#          description: current balance of the client
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  data:
+#                    type: object
+#                    properties:
+#                      balance:
+#                        type: number
+#                        format: double
+#                        example: 2000.9999
+#                  link:
+#                    $ref: "#/components/schemas/SelfLink"
+#        "400":
+#          $ref: "#/components/responses/400BadRequest"
+#        "401":
+#          $ref: "#/components/responses/401UnauthorizedError"
+#        "403":
+#          $ref: "#/components/responses/403ForbiddenError"
+#        "404":
+#          $ref: "#/components/responses/404NotFoundError"
+#        "500":
+#          $ref: "#/components/responses/500InternalError"
+#  /clients/{id}/package:
+#    patch:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Operation - Buy Package
+#      operationId: buyPackage
+#      description: Package data for Client
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                name:
+#                  type: string
+#                description:
+#                  type: string
+#                productIds:
+#                  type: array
+#                  items:
+#                    type: string
+#      responses:
+#        "200":
+#          description: Package ID
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  data:
+#                    type: object
+#                    properties:
+#                      packageId:
+#                        type: string
+#                  links:
+#                    $ref: "#/components/schemas/SelfLink"
+#        "400":
+#          description: Missing parametrs
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#        "402":
+#          description: Payment require
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#        "404":
+#          description: Client not found
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#  /clients/{id}/info:
+#    get:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Operation - Get all info about Client
+#      operationId: getClientInfo
+#      description: All info about Client
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        "200":
+#          description: All info about Client
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  data:
+#                    $ref: "#/components/schemas/ClientInfo"
+#                  links:
+#                    $ref: "#/components/schemas/SelfLink"
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#
+#  /clients:
+#    get:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: List of Clients
+#      operationId: getClientsList
+#      description: Get list of Clients
+#      parameters:
+#        - in: query
+#          name: filter
+#          description: "Filter by name"
+#          schema:
+#            type: string
+#      responses:
+#        "200":
+#          description: A list of clients
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  data:
+#                    type: array
+#                    items:
+#                      $ref: "#/components/schemas/Client"
+#                  links:
+#                    type: object
+#                    properties:
+#                      collection:
+#                        type: object
+#                        properties:
+#                          href:
+#                            type: string
+#                            example: "https://api-server/clients"
+#                  total:
+#                    type: number
+#                    format: int32
+#                    example: 2
+#
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#    post:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Add a new client
+#      operationId: addClient
+#      description: add client to database
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                name:
+#                  type: number
+#                  format: string
+#                  example: Client Name
+#      responses:
+#        "204":
+#          description: Client successfully added
+#        "400":
+#          $ref: "#/components/responses/400BadRequest"
+#        "401":
+#          $ref: "#/components/responses/401UnauthorizedError"
+#        "409":
+#          $ref: "#/components/responses/409AlreadyExists"
+#        "500":
+#          $ref: "#/components/responses/500InternalError"
+#
+#  /clients/{id}:
+#    get:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Get client by ID
+#      operationId: getClientById
+#      description: Get client by ID
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        "200":
+#          description: Client
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  data:
+#                    $ref: "#/components/schemas/Client"
+#                  links:
+#                    type: object
+#                    properties:
+#                      self:
+#                        type: object
+#                        properties:
+#                          href:
+#                            type: string
+#                            example: "https://api-server/clients/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#    patch:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Partially updates Client
+#      operationId: patchClient
+#      description: Partially updates Clients data
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                name:
+#                  type: string
+#      responses:
+#        "200":
+#          description: Client name updated
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  message:
+#                    type: string
+#                    example: Client name successfully updated
+#                  links:
+#                    $ref: "#/components/schemas/SelfLink"
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string
+#    delete:
+#      tags:
+#        - clients
+#      security:
+#        - ApiKeyAuth: []
+#        - bearerAuth: []
+#      summary: Delete Client
+#      operationId: rmClient
+#      description: Delete existing Client
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        "204":
+#          description: OK
+#        "500":
+#          description: Internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  error:
+#                    type: string

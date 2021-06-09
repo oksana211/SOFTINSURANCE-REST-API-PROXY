@@ -1,0 +1,16 @@
+{
+  "name": "SOFTINSURANCE-REST-API-PROXY",
+  "jest": {
+    "verbose": true,
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/*.js?(x)"
+    ]
+  },
+  "version": "1.0.0",
+  "devDependencies": {
+    "axios": "^0.21.1",
+    "jest": "^26.6.3",
+    "jest-openapi": "^0.13.0"
+  }
+}
